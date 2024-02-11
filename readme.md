@@ -29,7 +29,7 @@ question:
 
 To deploy flows in container:
 
-        PS D:\Code\Git\prefect101> kubectl apply -f deployment-manifest.yaml
+        PS D:\Code\Git\prefect101> kubectl apply -f deployments/flow-manifest.yaml
 
 This will spin up deployment and pod
 
@@ -93,7 +93,7 @@ Navigate to flow runs to check generated run, its status and logs.
 
 Stop all:
 
-        kubectl delete -f deployment-manifest.yaml 
+        kubectl delete -f deployments/flow-manifest.yaml
         docker-compose --profile server down 
 
 Start everything back:
@@ -106,3 +106,24 @@ Next Actions:
 
 Prefect server is started in docker and flows are then deployed as container in k8s
 Prefect Server also needs to start in k8s.
+
+
+prefect kubernetes manifest server > server-manifest.yaml
+prefect kubernetes manifest agent > agent-manifest.yaml  
+
+Start Server
+    kubectl apply -f .\deployments\server-manifest.yaml
+
+Forward port
+
+    kubectl port-forward deployments/prefect-server 4200:4200 -n default
+
+Set local prefect config to point to k8s
+
+    prefect config set PREFECT_API_URL=http://localhost:4200/api
+
+
+apt update
+apt install curl
+
+curl -I -L 
