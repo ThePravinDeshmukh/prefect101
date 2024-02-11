@@ -113,6 +113,7 @@ prefect kubernetes manifest agent > agent-manifest.yaml
 
 Start Server
     kubectl apply -f .\deployments\server-manifest.yaml
+    kubectl apply -f .\deployments\agent-manifest.yaml
 
 Forward port
 
@@ -122,8 +123,23 @@ Set local prefect config to point to k8s
 
     prefect config set PREFECT_API_URL=http://localhost:4200/api
 
+For debugging in Pod
 
-apt update
-apt install curl
+        kubectl exec --stdin --tty pod-name -- /bin/bash
+        apt update
+        apt install curl
+        curl -I -L http://prefect-server:4200
 
-curl -I -L 
+        PS D:\Code\Git\prefect101> prefect deployment run get-repo-info/prefect-docker-guide  
+        Creating flow run for deployment 'get-repo-info/prefect-docker-guide'...
+        Created flow run 'classy-chameleon'.
+        └── UUID: c5afde77-aeb0-4af8-b167-fe4ffa811e2e
+        └── Parameters: {}
+        └── Scheduled start time: 2024-02-11 16:02:21 IST (now)
+        └── URL: http://localhost:4200/flow-runs/flow-run/c5afde77-aeb0-4af8-b167-fe4ffa811e2e
+
+        
+Worked! I am able to 
+ - Run prefect server and agent in k8s
+ - build and deploy prefect flow as container in k8s
+ - schedule and run deployed flow using cli and ui

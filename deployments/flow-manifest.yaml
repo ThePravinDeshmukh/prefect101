@@ -17,6 +17,6 @@ spec:
         image: prefect-docker-guide-image:latest
         env:
         - name: PREFECT_API_URL
-          value: http://prefect-server/api
+          value: http://prefect-server:4200/api
         # Never pull the image because we're using a local image
         imagePullPolicy: Never
