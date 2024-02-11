@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prefect-docker-guide
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      flow: get-repo-info
+  template:
+    metadata:
+      labels:
+        flow: get-repo-info
+    spec:
+      containers:
+      - name: flow-container
+        image: docker.io/thepravindeshmukh/prefect:tagname
+        env:
+        - name: PREFECT_API_URL
+          value: http://prefect-server:4200/api
+        # Never pull the image because we're using a local image
+        imagePullPolicy: Never

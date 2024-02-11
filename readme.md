@@ -148,3 +148,75 @@ Worked! I am able to
   - docker based setup https://github.com/rpeden/prefect-docker-compose/blob/main/docker-compose.yml
   - k8s based https://discourse.prefect.io/t/deploying-prefect-agents-on-kubernetes/1298
   - little helpful https://www.restack.io/docs/prefect-knowledge-prefect-deployment-kubernetes
+
+
+EKS:
+
+aws eks --region ap-south-1 update-kubeconfig --name prefect-cluster
+
+eksctl utils associate-iam-oidc-provider --cluster=prefect-cluster --approve
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/rbac-role.yaml
+
+aws iam create-policy --policy-name ALBIngressControllerIAMPolicy --policy-document file://iam-policy.json
+Policy:
+  Arn: arn:aws:iam::746894569726:policy/ALBIngressControllerIAMPolicy
+  AttachmentCount: 0
+  CreateDate: '2024-02-11T14:22:07+00:00'
+  DefaultVersionId: v1
+  IsAttachable: true
+  Path: /
+  PermissionsBoundaryUsageCount: 0
+  PolicyId: ANPA23ZTCWD7BE7OYCHKZ
+  PolicyName: ALBIngressControllerIAMPolicy
+  UpdateDate: '2024-02-11T14:22:07+00:00'
+
+
+
+https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html
+
+$ aws iam create-policy \
+     --policy-name AWSLoadBalancerControllerIAMPolicy \
+     --policy-document file://iam_policy.json
+Policy:
+  Arn: arn:aws:iam::746894569726:policy/AWSLoadBalancerControllerIAMPolicy
+  AttachmentCount: 0
+  CreateDate: '2024-02-11T14:55:28+00:00'
+  DefaultVersionId: v1
+  IsAttachable: true
+  Path: /
+  PermissionsBoundaryUsageCount: 0
+  PolicyId: ANPA23ZTCWD7AMAABV4M6
+  PolicyName: AWSLoadBalancerControllerIAMPolicy
+  UpdateDate: '2024-02-11T14:55:28+00:00'
+
+
+eksctl create iamserviceaccount \
+  --cluster=prefect-cluster \
+  --namespace=kube-system \
+  --name=aws-load-balancer-controller \
+  --role-name AmazonEKSLoadBalancerControllerRole \
+  --attach-policy-arn=arn:aws:iam::746894569726:policy/AWSLoadBalancerControllerIAMPolicy \
+  --approve
+
+
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+  -n kube-system \
+  --set clusterName=prefect-cluster \
+  --set serviceAccount.create=false \
+  --set serviceAccount.name=aws-load-balancer-controller \
+  --set vpcId=vpc-001ddeef3bc4c18a6 \
+  --set region=ap-south-1
+
+
+
+eksctl create fargateprofile \
+    --cluster prefect-cluster \
+    --region ap-south-1 \
+    --name alb-sample-app \
+    --namespace game-2048
+
+
+  
+kubectl apply -f eks-deployments/server-manifest.yaml
+kubectl delete -f eks-deployments/server-manifest.yaml
