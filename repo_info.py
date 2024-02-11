@@ -1,17 +1,29 @@
 import httpx
-from prefect import flow, get_run_logger
+from prefect import flow, task
 
 
-@flow
+@task
+def get_url(url: str, params: dict = None):
+    response = httpx.get(url, params=params)
+    response.raise_for_status()
+    return response.json()
+
+
+@flow(retries=3, retry_delay_seconds=5, log_prints=True)
 def get_repo_info(repo_name: str = "PrefectHQ/prefect"):
     url = f"https://api.github.com/repos/{repo_name}"
-    response = httpx.get(url)
-    response.raise_for_status()
-    repo = response.json()
-    logger = get_run_logger()
-    logger.info("%s repository statistics :", repo_name)
-    logger.info(f"Stars 🌠 : %d", repo["stargazers_count"])
-    logger.info(f"Forks 🍴 : %d", repo["forks_count"])
+    repo_stats = get_url(url)
+    print(f"{repo_name} repository statistics 🤓:")
+    print(f"Stars 🌠 : {repo_stats['stargazers_count']}")
+    print(f"Forks 🍴 : {repo_stats['forks_count']}")
 
 if __name__ == "__main__":
-    get_repo_info()
+    # get_repo_info()
+        get_repo_info.serve(
+        name="my-first-deployment",
+        cron="* * * * *",
+        tags=["testing", "tutorial"],
+        description="Given a GitHub repository, logs repository statistics for that repo.",
+        version="tutorial/deployments",
+    )
+
