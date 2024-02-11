@@ -90,8 +90,19 @@ Deployments > Select prefect-docker-guide > Quick run
 
 Navigate to flow runs to check generated run, its status and logs.
 
+
+Stop all:
+
+        kubectl delete -f deployment-manifest.yaml 
+        docker-compose --profile server down 
+
+Start everything back:
+
+        docker-compose --profile server up -d
+
+It remembers the deployment and previous runs because of Postgres database.
+
 Next Actions:
 
 Prefect server is started in docker and flows are then deployed as container in k8s
-
 Prefect Server also needs to start in k8s.
