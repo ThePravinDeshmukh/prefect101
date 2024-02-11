@@ -143,3 +143,8 @@ Worked! I am able to
  - Run prefect server and agent in k8s
  - build and deploy prefect flow as container in k8s
  - schedule and run deployed flow using cli and ui
+
+ Ref
+  - docker based setup https://github.com/rpeden/prefect-docker-compose/blob/main/docker-compose.yml
+  - k8s based https://discourse.prefect.io/t/deploying-prefect-agents-on-kubernetes/1298
+  - little helpful https://www.restack.io/docs/prefect-knowledge-prefect-deployment-kubernetes
